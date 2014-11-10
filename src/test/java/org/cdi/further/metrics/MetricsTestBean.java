@@ -17,7 +17,7 @@ public class MetricsTestBean {
     @Metric(name="myTimer")
     Timer timer = new Timer(new SlidingTimeWindowReservoir(1L, TimeUnit.MINUTES));
     
-    @Timed
+    @Timed(name="myTimer")
     public void timedMethod()  {
         System.out.println("doing a pause");
         try {
