@@ -32,6 +32,8 @@ public class CamelExtension implements Extension {
 
     private final Set<AnnotatedType<?>> camelBeans = new HashSet<>();
 
+    private DefaultCamelContext context;
+
     void camelAnnotations(@Observes @WithAnnotations({BeanInject.class, Consume.class, EndpointInject.class, Produce.class, PropertyInject.class}) ProcessAnnotatedType<?> pat) {
         camelBeans.add(pat.getAnnotatedType());
     }
@@ -47,8 +49,8 @@ public class CamelExtension implements Extension {
             abd.addBean(new CamelContextBean(bm));
     }
 
-    void configureContext(@Observes AfterDeploymentValidation adv, BeanManager bm) throws Exception {
-        DefaultCamelContext context = getReference(bm, DefaultCamelContext.class);
+    void configureAndStartContext(@Observes AfterDeploymentValidation adv, BeanManager bm) throws Exception {
+        context = getReference(bm, DefaultCamelContext.class);
         context.setRegistry(new CdiCamelRegistry(bm));
 
         for (Bean<?> bean : bm.getBeans(RoutesBuilder.class))
@@ -58,7 +60,6 @@ public class CamelExtension implements Extension {
     }
 
     void stopCamelContext(@Observes BeforeShutdown bs, BeanManager bm) throws Exception {
-        CamelContext context = getReference(bm, CamelContext.class);
         context.stop();
     }
 
