@@ -46,11 +46,11 @@ public class CamelIntegrationTest {
     public void sendMessage(DefaultCamelContext context) throws Exception {
         MockEndpoint mock = CamelContextHelper.getMandatoryEndpoint(context, "mock:output", MockEndpoint.class);
         mock.expectedMessageCount(1);
-        mock.expectedBodiesReceived("test");
+        mock.expectedBodiesReceived("HI DEVOXX");
 
         FileOutputStream out = new FileOutputStream("inputDir/message");
         try {
-            out.write("test".getBytes());
+            out.write("HI DEVOXX".getBytes());
         } finally {
             out.close();
         }
