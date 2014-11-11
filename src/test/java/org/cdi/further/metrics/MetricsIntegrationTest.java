@@ -1,7 +1,6 @@
 package org.cdi.further.metrics;
 
 import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Snapshot;
 import com.codahale.metrics.Timer;
 import com.codahale.metrics.annotation.Metric;
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -48,7 +47,7 @@ public class MetricsIntegrationTest {
 
     @Inject
     @Metric(name = "myTimer")
-    com.codahale.metrics.Metric metric;
+    Timer timer;
 
     @Inject
     MetricRegistry registry;
@@ -60,16 +59,13 @@ public class MetricsIntegrationTest {
     @Test
     public void shouldMetricsBeTheSame() {
         Timer t = registry.timer("myTimer");
-        Assert.assertSame(t, metric);
+        Assert.assertSame(t, timer);
     }
 
     @Test
     public void shouldTimedInterceptorBeCalled() {
-        Timer t = registry.timer("myTimer");
-        Snapshot s = t.getSnapshot();
-
         mtb.timedMethod();
-        Assert.assertFalse(t.getSnapshot().equals(s));
+        Assert.assertEquals(1, timer.getCount());
 
     }
 
