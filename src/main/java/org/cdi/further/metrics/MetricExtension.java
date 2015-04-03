@@ -7,12 +7,14 @@ import com.codahale.metrics.annotation.Timed;
 import org.apache.deltaspike.core.api.literal.AnyLiteral;
 import org.apache.deltaspike.core.api.provider.BeanProvider;
 import org.apache.deltaspike.core.util.AnnotationUtils;
+import org.apache.deltaspike.core.util.metadata.builder.AnnotatedTypeBuilder;
 
 import java.lang.annotation.Annotation;
 import java.util.Set;
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.AfterDeploymentValidation;
+import javax.enterprise.inject.spi.AnnotatedType;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.BeforeBeanDiscovery;
@@ -20,6 +22,8 @@ import javax.enterprise.inject.spi.Extension;
 import javax.enterprise.inject.spi.InjectionPoint;
 import javax.enterprise.inject.spi.ProcessProducer;
 import javax.enterprise.inject.spi.Producer;
+import javax.enterprise.util.AnnotationLiteral;
+import javax.enterprise.util.Nonbinding;
 
 /**
  * @author Antoine Sabot-Durand
@@ -65,7 +69,15 @@ public class MetricExtension implements Extension {
     }
 
     void addTimedBinding(@Observes BeforeBeanDiscovery bbd, BeanManager bm) throws Exception {
-        bbd.addInterceptorBinding(new TimedAnnotatedType(bm.createAnnotatedType(Timed.class)));
+        AnnotationLiteral<Nonbinding> nonbindingLiteral = new AnnotationLiteral<Nonbinding>() {
+        };
+        AnnotatedType<Timed> at = new AnnotatedTypeBuilder<Timed>()
+                .readFromType(Timed.class)
+                .addToMethod(Timed.class.getMethod("name"), nonbindingLiteral)
+                .addToMethod(Timed.class.getMethod("absolute"),nonbindingLiteral)
+                .create();
+        bbd.addInterceptorBinding(at);
+
     }
 
 
